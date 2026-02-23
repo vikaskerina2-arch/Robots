@@ -7,11 +7,19 @@ import log.LogWindowSource;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * Окно для отображения лога - протокола работы
+ * автоматическое обновление отображения
+ */
 public class LogWindow extends JInternalFrame implements LogChangeListener
 {
     private LogWindowSource logSource;
     private TextArea logContent;
 
+    /**
+     * Новое окно протокола
+     * @param logSource
+     */
     public LogWindow(LogWindowSource logSource)
     {
         super("Протокол работы", true, true, true, true);
@@ -27,6 +35,9 @@ public class LogWindow extends JInternalFrame implements LogChangeListener
         updateLogContent();
     }
 
+    /**
+     * Обновление текста лога
+     */
     private void updateLogContent()
     {
         StringBuilder content = new StringBuilder();

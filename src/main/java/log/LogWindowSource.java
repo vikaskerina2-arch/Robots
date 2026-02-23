@@ -12,21 +12,37 @@ import java.util.Collections;
  * величиной m_iQueueLength (т.е. реально нужна очередь сообщений 
  * ограниченного размера) 
  */
+
+/**
+ * Источник сообщений лога, хранение записей и тд
+ */
 public class LogWindowSource
 {
     private int queueLength;
     
     private ArrayList<LogEntry> messages;
     private final ArrayList<LogChangeListener> listeners;
+
+    /**
+     * Кэш массив слушателей для доступа, обновляется
+     */
     private volatile LogChangeListener[] activeListeners;
-    
+
+    /**
+     * Новый источник лога с макс размером
+     * @param iQueueLength
+     */
     public LogWindowSource(int iQueueLength) 
     {
         queueLength = iQueueLength;
         messages = new ArrayList<>(iQueueLength);
         listeners = new ArrayList<>();
     }
-    
+
+    /**
+     * Регистрация слушателя для уведомлений
+     * @param listener
+     */
     public void registerListener(LogChangeListener listener)
     {
         synchronized(listeners)
@@ -35,7 +51,11 @@ public class LogWindowSource
             activeListeners = null;
         }
     }
-    
+
+    /**
+     * Удаление слушателя
+     * @param listener
+     */
     public void unregisterListener(LogChangeListener listener)
     {
         synchronized(listeners)
@@ -44,7 +64,12 @@ public class LogWindowSource
             activeListeners = null;
         }
     }
-    
+
+    /**
+     * Добавление сообщение в лог и уведомление
+     * @param logLevel
+     * @param strMessage
+     */
     public void append(LogLevel logLevel, String strMessage)
     {
         LogEntry entry = new LogEntry(logLevel, strMessage);
@@ -66,12 +91,22 @@ public class LogWindowSource
             listener.onLogChanged();
         }
     }
-    
+
+    /**
+     * Кол-во сообщений в логе
+     * @return
+     */
     public int size()
     {
         return messages.size();
     }
 
+    /**
+     * Итератор по диапазону
+     * @param startFrom
+     * @param count
+     * @return
+     */
     public Iterable<LogEntry> range(int startFrom, int count)
     {
         if (startFrom < 0 || startFrom >= messages.size())
@@ -82,6 +117,10 @@ public class LogWindowSource
         return messages.subList(startFrom, indexTo);
     }
 
+    /**
+     * Итератор по всему
+     * @return
+     */
     public Iterable<LogEntry> all()
     {
         return messages;
