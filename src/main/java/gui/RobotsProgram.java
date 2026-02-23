@@ -5,8 +5,15 @@ import java.awt.Frame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+/**
+ * Точка входа, внешний вид и запуск главного окна
+ */
 public class RobotsProgram
 {
+  /**
+   * Точка входа
+   * @param args
+   */
     public static void main(String[] args) {
       try {
         UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");

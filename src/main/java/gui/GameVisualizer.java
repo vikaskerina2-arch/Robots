@@ -8,10 +8,16 @@ import java.awt.geom.AffineTransform;
 import java.util.Timer;
 import java.util.TimerTask;
 
+/**
+ * Модель робота, движение
+ */
 public class GameVisualizer extends JPanel
 {
     private final Timer timer = initTimer();
-    
+
+    /**
+     * Инициализация таймера
+     */
     private static Timer initTimer() 
     {
         Timer timer = new Timer("events generator", true);
@@ -27,7 +33,10 @@ public class GameVisualizer extends JPanel
     
     private static final double MAX_VELOCITY = 0.1;
     private static final double MAX_ANGULAR_VELOCITY = 0.001;
-    
+
+    /**
+     * Новый визуал, таймеры, обрабатываем мышь
+     */
     public GameVisualizer() 
     {
         timer.schedule(new TimerTask()
@@ -58,24 +67,44 @@ public class GameVisualizer extends JPanel
         setDoubleBuffered(true);
     }
 
+    /**
+     * Новая цель р
+     */
     protected void setTargetPosition(Point p)
     {
         targetPositionX = p.x;
         targetPositionY = p.y;
     }
-    
+
+    /**
+     * Перерисовка
+     */
     protected void onRedrawEvent()
     {
         EventQueue.invokeLater(this::repaint);
     }
 
+    /**
+     * Евклидово расстояние между точками
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     */
     private static double distance(double x1, double y1, double x2, double y2)
     {
         double diffX = x1 - x2;
         double diffY = y1 - y2;
         return Math.sqrt(diffX * diffX + diffY * diffY);
     }
-    
+
+    /**
+     * Угол между точками
+     * @param fromX
+     * @param fromY
+     * @param toX
+     * @param toY
+     */
     private static double angleTo(double fromX, double fromY, double toX, double toY)
     {
         double diffX = toX - fromX;
@@ -83,7 +112,10 @@ public class GameVisualizer extends JPanel
         
         return asNormalizedRadians(Math.atan2(diffY, diffX));
     }
-    
+
+    /**
+     * Обновление движения, расстояние, скорость и перемещение
+     */
     protected void onModelUpdateEvent()
     {
         double distance = distance(targetPositionX, targetPositionY, 
@@ -107,7 +139,13 @@ public class GameVisualizer extends JPanel
         
         moveRobot(velocity, angularVelocity, 10);
     }
-    
+
+    /**
+     * Ограничение значения диапазоном
+     * @param value
+     * @param min
+     * @param max
+     */
     private static double applyLimits(double value, double min, double max)
     {
         if (value < min)
@@ -116,7 +154,13 @@ public class GameVisualizer extends JPanel
             return max;
         return value;
     }
-    
+
+    /**
+     * Перемещение робота по формуле
+     * @param velocity
+     * @param angularVelocity
+     * @param duration
+     */
     private void moveRobot(double velocity, double angularVelocity, double duration)
     {
         velocity = applyLimits(velocity, 0, MAX_VELOCITY);
@@ -141,6 +185,10 @@ public class GameVisualizer extends JPanel
         robotDirection = newDirection;
     }
 
+    /**
+     * Ставит угол в диапазон 0, 2П
+     * @param angle
+     */
     private static double asNormalizedRadians(double angle)
     {
         while (angle < 0)
@@ -153,7 +201,11 @@ public class GameVisualizer extends JPanel
         }
         return angle;
     }
-    
+
+    /**
+     * Округление до ближайшего целого
+     * @param value
+     */
     private static int round(double value)
     {
         return (int)(value + 0.5);
@@ -167,17 +219,40 @@ public class GameVisualizer extends JPanel
         drawRobot(g2d, round(robotPositionX), round(robotPositionY), robotDirection);
         drawTarget(g2d, targetPositionX, targetPositionY);
     }
-    
+
+    /**
+     * Овал с центром в точке
+     * @param g
+     * @param centerX
+     * @param centerY
+     * @param diam1
+     * @param diam2
+     */
     private static void fillOval(Graphics g, int centerX, int centerY, int diam1, int diam2)
     {
         g.fillOval(centerX - diam1 / 2, centerY - diam2 / 2, diam1, diam2);
     }
-    
+
+    /**
+     * Контур овала
+     * @param g
+     * @param centerX
+     * @param centerY
+     * @param diam1
+     * @param diam2
+     */
     private static void drawOval(Graphics g, int centerX, int centerY, int diam1, int diam2)
     {
         g.drawOval(centerX - diam1 / 2, centerY - diam2 / 2, diam1, diam2);
     }
-    
+
+    /**
+     * Робот овал с глазом
+     * @param g
+     * @param x
+     * @param y
+     * @param direction
+     */
     private void drawRobot(Graphics2D g, int x, int y, double direction)
     {
         int robotCenterX = round(robotPositionX); 
@@ -193,7 +268,13 @@ public class GameVisualizer extends JPanel
         g.setColor(Color.BLACK);
         drawOval(g, robotCenterX  + 10, robotCenterY, 5, 5);
     }
-    
+
+    /**
+     * Цель зеленая точка
+     * @param g
+     * @param x
+     * @param y
+     */
     private void drawTarget(Graphics2D g, int x, int y)
     {
         AffineTransform t = AffineTransform.getRotateInstance(0, 0, 0); 

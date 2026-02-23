@@ -3,10 +3,16 @@ package gui;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * Окно поле с роботом
+ */
 public class GameWindow extends JInternalFrame
 {
     private final GameVisualizer gameVisualizer;
 
+    /**
+     * Новое окно поля игры с визуализатором в центре
+     */
     public GameWindow() 
     {
         super("Игровое поле", true, true, true, true);
