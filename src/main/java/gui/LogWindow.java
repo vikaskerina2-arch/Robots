@@ -6,12 +6,13 @@ import log.LogWindowSource;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Map;
 
 /**
  * Окно для отображения лога - протокола работы
  * автоматическое обновление отображения
  */
-public class LogWindow extends JInternalFrame implements LogChangeListener
+public class LogWindow extends JInternalFrame implements LogChangeListener, Save
 {
     private LogWindowSource logSource;
     private TextArea logContent;
@@ -48,10 +49,25 @@ public class LogWindow extends JInternalFrame implements LogChangeListener
         logContent.setText(content.toString());
         logContent.invalidate();
     }
-    
+
     @Override
     public void onLogChanged()
     {
         EventQueue.invokeLater(this::updateLogContent);
+    }
+
+    @Override
+    public Map<String, String> saveState() {
+        return WindowState.saveInternalFrame(this, getPrefix());
+    }
+
+    @Override
+    public void restoreState(Map<String, String> state) {
+        WindowState.restoreInternalFrame(this, state, getPrefix());
+    }
+
+    @Override
+    public String getPrefix() {
+        return "log";
     }
 }
