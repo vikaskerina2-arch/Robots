@@ -15,6 +15,7 @@ import java.util.Map;
  */
 public class MainApplicationFrame extends JFrame implements Save
 {
+    private final WindowState windowState = new WindowState();
     /**
      * Панель для внутренних окон
      */
@@ -164,12 +165,12 @@ public class MainApplicationFrame extends JFrame implements Save
 
     @Override
     public Map<String, String> saveState() {
-        return WindowState.saveFrame(this, getPrefix());
+        return windowState.saveFrame(this, getPrefix());
     }
 
     @Override
     public void restoreState(Map<String, String> state) {
-        WindowState.restoreFrame(this, state, getPrefix());
+        windowState.restoreFrame(this, state, getPrefix());
     }
 
     @Override

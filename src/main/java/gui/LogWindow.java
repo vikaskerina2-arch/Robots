@@ -14,6 +14,7 @@ import java.util.Map;
  */
 public class LogWindow extends JInternalFrame implements LogChangeListener, Save
 {
+    private final WindowState windowState = new WindowState();
     private LogWindowSource logSource;
     private TextArea logContent;
 
@@ -58,12 +59,12 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Save
 
     @Override
     public Map<String, String> saveState() {
-        return WindowState.saveInternalFrame(this, getPrefix());
+        return windowState.saveInternalFrame(this, getPrefix());
     }
 
     @Override
     public void restoreState(Map<String, String> state) {
-        WindowState.restoreInternalFrame(this, state, getPrefix());
+        windowState.restoreInternalFrame(this, state, getPrefix());
     }
 
     @Override

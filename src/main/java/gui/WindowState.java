@@ -16,7 +16,7 @@ public class WindowState {
      * @param prefix
      * @return
      */
-    public static Map<String, String> saveFrame(Window window, String prefix) {
+    public Map<String, String> saveFrame(Window window, String prefix) {
         Map<String, String> state = new HashMap<>();
         state.put(prefix + ".x", String.valueOf(window.getX()));
         state.put(prefix + ".y", String.valueOf(window.getY()));
@@ -37,7 +37,7 @@ public class WindowState {
      * @param prefix
      * @return
      */
-    public static Map<String, String> saveInternalFrame(JInternalFrame frame, String prefix) {
+    public Map<String, String> saveInternalFrame(JInternalFrame frame, String prefix) {
         Map<String, String> state = new HashMap<>();
         state.put(prefix + ".x", String.valueOf(frame.getX()));
         state.put(prefix + ".y", String.valueOf(frame.getY()));
@@ -56,7 +56,7 @@ public class WindowState {
      * @param state
      * @param prefix
      */
-    public static void restoreInternalFrame(JInternalFrame frame, Map<String, String> state, String prefix) {
+    public void restoreInternalFrame(JInternalFrame frame, Map<String, String> state, String prefix) {
         try {
             String x = state.get(prefix + ".x");
             String y = state.get(prefix + ".y");
@@ -90,7 +90,7 @@ public class WindowState {
      * @param state
      * @param prefix
      */
-    public static void restoreFrame(Window window, Map<String, String> state, String prefix) {
+    public void restoreFrame(Window window, Map<String, String> state, String prefix) {
         try {
             String x = state.get(prefix + ".x");
             String y = state.get(prefix + ".y");

@@ -9,6 +9,7 @@ import java.util.Map;
  */
 public class GameWindow extends JInternalFrame implements Save
 {
+    private final WindowState windowState = new WindowState();
     private final GameVisualizer gameVisualizer;
 
     /**
@@ -26,12 +27,12 @@ public class GameWindow extends JInternalFrame implements Save
 
     @Override
     public Map<String, String> saveState() {
-        return WindowState.saveInternalFrame(this, getPrefix());
+        return windowState.saveInternalFrame(this, getPrefix());
     }
 
     @Override
     public void restoreState(Map<String, String> state) {
-        WindowState.restoreInternalFrame(this, state, getPrefix());
+        windowState.restoreInternalFrame(this, state, getPrefix());
     }
 
     @Override
