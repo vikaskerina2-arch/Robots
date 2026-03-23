@@ -3,26 +3,48 @@ package gui;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
- * Окно поле с роботом
+ * Окно игры с роботом
  */
-public class GameWindow extends JInternalFrame implements Save
-{
+public class GameWindow extends JInternalFrame implements Save {
+
     private final WindowState windowState = new WindowState();
-    private final GameVisualizer gameVisualizer;
+    private final RobotModel model;
+    private final GameVisualizer visualizer;
+    private final Timer timer;
 
     /**
-     * Новое окно поля игры с визуализатором в центре
+     * Создаем окно, модель и таймер
      */
-    public GameWindow()
-    {
+    public GameWindow() {
         super("Игровое поле", true, true, true, true);
-        gameVisualizer = new GameVisualizer();
+
+        model = new RobotModel();
+        visualizer = new GameVisualizer(model);
+
         JPanel panel = new JPanel(new BorderLayout());
-        panel.add(gameVisualizer, BorderLayout.CENTER);
+        panel.add(visualizer, BorderLayout.CENTER);
         getContentPane().add(panel);
         pack();
+
+        // Таймер для обновления модели
+        timer = new Timer("robot-updater", true);
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                model.update(10);
+            }
+        }, 0, 10);
+    }
+
+    /**
+     * Возврат робота
+     */
+    public RobotModel getModel() {
+        return model;
     }
 
     @Override
