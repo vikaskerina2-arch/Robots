@@ -23,11 +23,11 @@ public class RobotModel {
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
     // Имена свойств для событий
-    public static final String PROP_X = "x";
-    public static final String PROP_Y = "y";
-    public static final String PROP_DIRECTION = "direction";
-    public static final String PROP_TARGET_X = "targetX";
-    public static final String PROP_TARGET_Y = "targetY";
+    public final String PROP_X = "x";
+    public final String PROP_Y = "y";
+    public final String PROP_DIRECTION = "direction";
+    public final String PROP_TARGET_X = "targetX";
+    public final String PROP_TARGET_Y = "targetY";
 
     // Геттеры
     public double getX() { return x; }

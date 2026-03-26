@@ -56,15 +56,26 @@ public class RobotInfoWindow extends JInternalFrame implements Save, PropertyCha
         pack();
     }
 
-    //обновляем при изменении модели
+    //Обновляет отображение при изменении модели
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         SwingUtilities.invokeLater(() -> {
-            xLabel.setText(String.format("%.1f", model.getX()));
-            yLabel.setText(String.format("%.1f", model.getY()));
-            directionLabel.setText(String.format("%.1f°", Math.toDegrees(model.getDirection())));
-            targetXLabel.setText(String.format("%.1f", model.getTargetX()));
-            targetYLabel.setText(String.format("%.1f", model.getTargetY()));
+            // Проверяем, какое свойство изменилось, чтобы обновлять только нужные поля
+            String prop = evt.getPropertyName();
+
+            if (prop.equals(model.PROP_X) || prop.equals(model.PROP_Y)) {
+                xLabel.setText(String.format("%.1f", model.getX()));
+                yLabel.setText(String.format("%.1f", model.getY()));
+            }
+
+            if (prop.equals(model.PROP_DIRECTION)) {
+                directionLabel.setText(String.format("%.1f°", Math.toDegrees(model.getDirection())));
+            }
+
+            if (prop.equals(model.PROP_TARGET_X) || prop.equals(model.PROP_TARGET_Y)) {
+                targetXLabel.setText(String.format("%.1f", model.getTargetX()));
+                targetYLabel.setText(String.format("%.1f", model.getTargetY()));
+            }
         });
     }
 
