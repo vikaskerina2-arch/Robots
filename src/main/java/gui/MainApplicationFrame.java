@@ -23,6 +23,7 @@ public class MainApplicationFrame extends JFrame implements Save
 
     private LogWindow logWindow;
     private GameWindow gameWindow;
+    private RobotInfoWindow infoWindow;
 
     private final FileSave storage = new FileSave("shkerina");
 
@@ -49,6 +50,12 @@ public class MainApplicationFrame extends JFrame implements Save
         gameWindow = new GameWindow();
         gameWindow.setSize(400,  400);
         addWindow(gameWindow);
+
+        // Новое окно с информацией о роботе
+        infoWindow = new RobotInfoWindow(gameWindow.getModel());
+        infoWindow.setSize(250, 180);
+        infoWindow.setLocation(420, 10);
+        addWindow(infoWindow);
 
         //создание строки меню
         MenuBuilder menuBuilder = new MenuBuilder(this);
@@ -80,6 +87,7 @@ public class MainApplicationFrame extends JFrame implements Save
         restoreState(new PrefixMap(all, getPrefix()));
         logWindow.restoreState(new PrefixMap(all, logWindow.getPrefix()));
         gameWindow.restoreState(new PrefixMap(all, gameWindow.getPrefix()));
+        infoWindow.restoreState(new PrefixMap(all, infoWindow.getPrefix()));
     }
 
     /**
@@ -92,6 +100,7 @@ public class MainApplicationFrame extends JFrame implements Save
         new PrefixMap(all, getPrefix()).putAll(saveState());
         new PrefixMap(all, logWindow.getPrefix()).putAll(logWindow.saveState());
         new PrefixMap(all, gameWindow.getPrefix()).putAll(gameWindow.saveState());
+        new PrefixMap(all, infoWindow.getPrefix()).putAll(infoWindow.saveState());
 
         storage.save(all);
     }
