@@ -2,18 +2,18 @@ package gui;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 /**
- * Визуализация робота и цели.
+ * Представление робота. Только отрисовывает модель.
+ * НЕ обрабатывает клики мыши — это делает контроллер.
  */
 public class GameVisualizer extends JPanel implements PropertyChangeListener {
 
     private RobotModel model;
+    private Controller mouseListener;
 
     /**
      * модель робота
@@ -22,14 +22,18 @@ public class GameVisualizer extends JPanel implements PropertyChangeListener {
         this.model = model;
         this.model.addPropertyChangeListener(this);
 
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                model.setTarget(e.getX(), e.getY());
-                repaint();
-            }
-        });
         setDoubleBuffered(true);
+    }
+
+    /**
+     * Устанавливает слушатель мыши от контроллера
+     */
+    public void setMouseListener(Controller listener) {
+        if (this.mouseListener != null) {
+            removeMouseListener(this.mouseListener);
+        }
+        this.mouseListener = listener;
+        addMouseListener(listener);
     }
 
     @Override

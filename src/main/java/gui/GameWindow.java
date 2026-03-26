@@ -5,11 +5,13 @@ import java.awt.*;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.awt.event.MouseEvent;
 
 /**
- * Окно игры с роботом
+ * Окно игры с роботом и контроллер
+ * Обработка кликов
  */
-public class GameWindow extends JInternalFrame implements Save {
+public class GameWindow extends JInternalFrame implements Save, Controller {
 
     private final WindowState windowState = new WindowState();
     private final RobotModel model;
@@ -24,6 +26,9 @@ public class GameWindow extends JInternalFrame implements Save {
 
         model = new RobotModel();
         visualizer = new GameVisualizer(model);
+
+        // Передаём себя как слушатель мыши в представление
+        visualizer.setMouseListener(this);
 
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(visualizer, BorderLayout.CENTER);
@@ -60,5 +65,31 @@ public class GameWindow extends JInternalFrame implements Save {
     @Override
     public String getPrefix() {
         return "game";
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        // Получаем координаты клика и передаём в модель
+        model.setTarget(e.getX(), e.getY());
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+
     }
 }
