@@ -38,6 +38,11 @@ public class GameVisualizer extends JPanel implements PropertyChangeListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
+        if (evt.getPropertyName().equals(model.PROP_X)) {
+            // изменилась X
+        } else if (evt.getPropertyName().equals(model.PROP_Y)) {
+            // изменилась Y
+        }
         repaint();
     }
 
