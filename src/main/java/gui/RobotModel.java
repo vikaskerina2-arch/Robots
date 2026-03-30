@@ -17,7 +17,7 @@ public class RobotModel {
 
     // Константы движения
     private static final double MAX_VELOCITY = 0.1;
-    private static final double MAX_ANGULAR_VELOCITY = 0.001;
+    private static final double MAX_ANGULAR_VELOCITY = 0.01;
 
     // Для оповещения слушателей
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
@@ -35,6 +35,25 @@ public class RobotModel {
     public double getDirection() { return direction; }
     public double getTargetX() { return targetX; }
     public double getTargetY() { return targetY; }
+
+    /**
+     * Угол до цели в радианах
+     */
+    public double getAngleToTarget() {
+        double dx = targetX - x;
+        double dy = targetY - y;
+        return Math.atan2(dy, dx);
+    }
+
+    /**
+     * Разница углов до цели и текущим в радианах.
+     * Диапазон [-П, П]
+     */
+    public double getAngleDiff() {
+        double angleToTarget = getAngleToTarget();
+        double diff = angleToTarget - direction;
+        return normalizeAngleDifference(diff);
+    }
 
     // Сеттеры с оповещением
     public void setX(double x) {
@@ -55,6 +74,7 @@ public class RobotModel {
         pcs.firePropertyChange(PROP_DIRECTION, old, this.direction);
     }
 
+    // Цель с оповещением
     public void setTarget(double x, double y) {
         double oldX = this.targetX;
         double oldY = this.targetY;
@@ -71,61 +91,41 @@ public class RobotModel {
 
 
     /**
-     * Обновление состояния 10мс
+     * Обновление состояния 10 мс
      * @param durationMs
      */
     public void update(int durationMs) {
         double distance = distanceToTarget();
-        if (distance < 0.5) return;
-
-        double angleToTarget = angleToTarget();
-        double angularVelocity = 0;
-        double angleDiff = normalizeRadians(angleToTarget - direction);
-
-        if (angleDiff > 0 && angleDiff < Math.PI) {
-            angularVelocity = MAX_ANGULAR_VELOCITY;
-        } else if (angleDiff < 0 && angleDiff > -Math.PI) {
-            angularVelocity = -MAX_ANGULAR_VELOCITY;
-        } else if (angleDiff > Math.PI) {
-            angularVelocity = -MAX_ANGULAR_VELOCITY;
-        } else if (angleDiff < -Math.PI) {
-            angularVelocity = MAX_ANGULAR_VELOCITY;
+        //Уже на месте
+        if (distance < 1.0) {
+            return;
         }
 
-        moveRobot(MAX_VELOCITY, angularVelocity, durationMs);
-    }
+        double angleDiff = getAngleDiff();
 
-    /**
-     * Перемещение по формулам
-     * @param velocity
-     * @param angularVelocity
-     * @param duration
-     */
-    private void moveRobot(double velocity, double angularVelocity, double duration) {
-        velocity = Math.max(0, Math.min(velocity, MAX_VELOCITY));
-        angularVelocity = Math.max(-MAX_ANGULAR_VELOCITY, Math.min(angularVelocity, MAX_ANGULAR_VELOCITY));
+        // Поворот
+        if (Math.abs(angleDiff) > 0.05) {
+            double angularVelocity = (angleDiff > 0) ? MAX_ANGULAR_VELOCITY : -MAX_ANGULAR_VELOCITY;
+            double step = angularVelocity * durationMs;
+            if (Math.abs(step) > Math.abs(angleDiff)) {
+                step = angleDiff;
+            }
+            double newDirection = direction + step;
+            setDirection(newDirection);
+        } else { // прямо
+            double velocity = MAX_VELOCITY;
+            double moveDistance = velocity * durationMs;
 
-        double newX = x;
-        double newY = y;
-        double newDirection = direction;
-
-        if (Math.abs(angularVelocity) < 1e-10) {
-            //прямо
-            newX = x + velocity * duration * Math.cos(direction);
-            newY = y + velocity * duration * Math.sin(direction);
-            newDirection = direction;
-        } else {
-            //дуга
-            double radius = velocity / angularVelocity;
-            double deltaAngle = angularVelocity * duration;
-            newX = x + radius * (Math.sin(direction + deltaAngle) - Math.sin(direction));
-            newY = y - radius * (Math.cos(direction + deltaAngle) - Math.cos(direction));
-            newDirection = direction + deltaAngle;
+            if (distance < moveDistance){
+                setX(targetX);
+                setY(targetY);
+            } else {
+                double newX = x + moveDistance * Math.cos(direction);
+                double newY = y + moveDistance * Math.sin(direction);
+                setX(newX);
+                setY(newY);
+            }
         }
-
-        setX(newX);
-        setY(newY);
-        setDirection(newDirection);
     }
 
     /**
@@ -138,20 +138,26 @@ public class RobotModel {
     }
 
     /**
-     * Угол до цели
+     * Нормализация угла [0, 2п)
      */
-    private double angleToTarget() {
-        double dx = targetX - x;
-        double dy = targetY - y;
-        return Math.atan2(dy, dx);
+    private double normalizeRadians(double angle) {
+        angle = angle % (2 * Math.PI);
+        if (angle < 0) {
+            angle += 2 * Math.PI;
+        }
+        return angle;
     }
 
     /**
-     * Нормализация угла
+     * Нормализация разницы углов [-П, П]
      */
-    private double normalizeRadians(double angle) {
-        while (angle < 0) angle += 2 * Math.PI;
-        while (angle >= 2 * Math.PI) angle -= 2 * Math.PI;
+    private double normalizeAngleDifference(double angle) {
+        while (angle > Math.PI) {
+            angle -= 2 * Math.PI;
+        }
+        while (angle <= -Math.PI) {
+            angle += 2 * Math.PI;
+        }
         return angle;
     }
 }

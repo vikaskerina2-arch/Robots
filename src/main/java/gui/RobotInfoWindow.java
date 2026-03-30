@@ -16,8 +16,8 @@ public class RobotInfoWindow extends JInternalFrame implements Save, PropertyCha
     private final JLabel xLabel;
     private final JLabel yLabel;
     private final JLabel directionLabel;
-    private final JLabel targetXLabel;
-    private final JLabel targetYLabel;
+    private final JLabel targetAngleLabel;
+    private final JLabel angleDiffLabel;
 
     /**
      * Создание окна
@@ -29,9 +29,10 @@ public class RobotInfoWindow extends JInternalFrame implements Save, PropertyCha
 
         setSize(250, 180);
 
-        JPanel panel = new JPanel(new GridLayout(5, 2, 5, 5));
+        JPanel panel = new JPanel(new GridLayout(6, 2, 5, 5));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
+        //Робот
         panel.add(new JLabel("Позиция X:"));
         xLabel = new JLabel(String.format("%.1f", model.getX()));
         panel.add(xLabel);
@@ -44,13 +45,15 @@ public class RobotInfoWindow extends JInternalFrame implements Save, PropertyCha
         directionLabel = new JLabel(String.format("%.1f°", Math.toDegrees(model.getDirection())));
         panel.add(directionLabel);
 
-        panel.add(new JLabel("Цель X:"));
-        targetXLabel = new JLabel(String.format("%.1f", model.getTargetX()));
-        panel.add(targetXLabel);
+        //Угол поворота
+        panel.add(new JLabel("Угол поворота(радианы):"));
+        targetAngleLabel = new JLabel(String.format("%.3f", model.getAngleToTarget()));
+        panel.add(targetAngleLabel);
 
-        panel.add(new JLabel("Цель Y:"));
-        targetYLabel = new JLabel(String.format("%.1f", model.getTargetY()));
-        panel.add(targetYLabel);
+        //Угол до цели
+        panel.add(new JLabel("Угол до цели(радианы):"));
+        angleDiffLabel = new JLabel(String.format("%.3f", model.getAngleDiff()));
+        panel.add(angleDiffLabel);
 
         getContentPane().add(panel);
         pack();
@@ -60,22 +63,11 @@ public class RobotInfoWindow extends JInternalFrame implements Save, PropertyCha
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         SwingUtilities.invokeLater(() -> {
-            // Проверяем, какое свойство изменилось, чтобы обновлять только нужные поля
-            String prop = evt.getPropertyName();
-
-            if (prop.equals(model.PROP_X) || prop.equals(model.PROP_Y)) {
-                xLabel.setText(String.format("%.1f", model.getX()));
-                yLabel.setText(String.format("%.1f", model.getY()));
-            }
-
-            if (prop.equals(model.PROP_DIRECTION)) {
-                directionLabel.setText(String.format("%.1f°", Math.toDegrees(model.getDirection())));
-            }
-
-            if (prop.equals(model.PROP_TARGET_X) || prop.equals(model.PROP_TARGET_Y)) {
-                targetXLabel.setText(String.format("%.1f", model.getTargetX()));
-                targetYLabel.setText(String.format("%.1f", model.getTargetY()));
-            }
+            xLabel.setText(String.format("%.1f", model.getX()));
+            yLabel.setText(String.format("%.1f", model.getY()));
+            directionLabel.setText(String.format("%.3f", model.getDirection()));
+            targetAngleLabel.setText(String.format("%.3f", model.getAngleToTarget()));
+            angleDiffLabel.setText(String.format("%.3f", model.getAngleDiff()));
         });
     }
 
