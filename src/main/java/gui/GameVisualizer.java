@@ -2,6 +2,7 @@ package gui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -13,7 +14,6 @@ import java.beans.PropertyChangeListener;
 public class GameVisualizer extends JPanel implements PropertyChangeListener {
 
     private RobotModel model;
-    private Controller mouseListener;
 
     /**
      * модель робота
@@ -28,21 +28,12 @@ public class GameVisualizer extends JPanel implements PropertyChangeListener {
     /**
      * Устанавливает слушатель мыши от контроллера
      */
-    public void setMouseListener(Controller listener) {
-        if (this.mouseListener != null) {
-            removeMouseListener(this.mouseListener);
-        }
-        this.mouseListener = listener;
+    public void setMouseListener(MouseListener listener) {
         addMouseListener(listener);
     }
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (evt.getPropertyName().equals(model.PROP_X)) {
-            // изменилась X
-        } else if (evt.getPropertyName().equals(model.PROP_Y)) {
-            // изменилась Y
-        }
         repaint();
     }
 

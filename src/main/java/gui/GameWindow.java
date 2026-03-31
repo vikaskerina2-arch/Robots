@@ -2,6 +2,7 @@ package gui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseListener;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -11,7 +12,7 @@ import java.awt.event.MouseEvent;
  * Окно игры с роботом и контроллер
  * Обработка кликов
  */
-public class GameWindow extends JInternalFrame implements Save, Controller {
+public class GameWindow extends JInternalFrame implements Save, MouseListener {
 
     private final WindowState windowState = new WindowState();
     private final RobotModel model;
