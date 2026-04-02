@@ -2,22 +2,18 @@ package gui;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseListener;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.awt.event.MouseEvent;
 
 /**
  * Окно игры с роботом и контроллер
  * Обработка кликов
  */
-public class GameWindow extends JInternalFrame implements Save, MouseListener {
+public class GameWindow extends JInternalFrame implements Save {
 
     private final WindowState windowState = new WindowState();
     private final RobotModel model;
     private final GameVisualizer visualizer;
-    private final Timer timer;
+    private final Controller controller;
 
     /**
      * Создаем окно, модель и таймер
@@ -28,22 +24,12 @@ public class GameWindow extends JInternalFrame implements Save, MouseListener {
         model = new RobotModel();
         visualizer = new GameVisualizer(model);
 
-        // Передаём себя как слушатель мыши в представление
-        visualizer.setMouseListener(this);
+        controller = new Controller(model, visualizer);
 
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(visualizer, BorderLayout.CENTER);
         getContentPane().add(panel);
         pack();
-
-        // Таймер для обновления модели
-        timer = new Timer("robot-updater", true);
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                model.update(10);
-            }
-        }, 0, 10);
     }
 
     /**
@@ -68,29 +54,4 @@ public class GameWindow extends JInternalFrame implements Save, MouseListener {
         return "game";
     }
 
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        // Получаем координаты клика и передаём в модель
-        model.setTarget(e.getX(), e.getY());
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-
-    }
 }

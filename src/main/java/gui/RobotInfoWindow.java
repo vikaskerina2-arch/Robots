@@ -27,9 +27,9 @@ public class RobotInfoWindow extends JInternalFrame implements Save, PropertyCha
         this.model = model;
         this.model.addPropertyChangeListener(this); // подписываемся на модель
 
-        setSize(250, 180);
+        setSize(350, 180);
 
-        JPanel panel = new JPanel(new GridLayout(6, 2, 5, 5));
+        JPanel panel = new JPanel(new GridLayout(6, 2, 15, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         //Робот
