@@ -1,128 +1,124 @@
 package log;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * Что починить:
- * 1. Этот класс порождает утечку ресурсов (связанные слушатели оказываются
- * удерживаемыми в памяти)
- * 2. Этот класс хранит активные сообщения лога, но в такой реализации он 
- * их лишь накапливает. Надо же, чтобы количество сообщений в логе было ограничено 
- * величиной m_iQueueLength (т.е. реально нужна очередь сообщений 
- * ограниченного размера) 
+ * Источник сообщений лога, хранение записей
  */
-
-/**
- * Источник сообщений лога, хранение записей и тд
- */
-public class LogWindowSource
-{
+public class LogWindowSource {
     private int queueLength;
-    
-    private ArrayList<LogEntry> messages;
-    private final ArrayList<LogChangeListener> listeners;
+
+    // Слушатели
+    private final WeakArrayList<LogChangeListener> listeners;
 
     /**
-     * Кэш массив слушателей для доступа, обновляется
+     * Кэш слушателей для доступа, обновляется
      */
     private volatile LogChangeListener[] activeListeners;
 
+    // Для записей
+    private final Queue<LogEntry> messages;
+
     /**
-     * Новый источник лога с макс размером
-     * @param iQueueLength
+     * Новый источник лога
      */
-    public LogWindowSource(int iQueueLength) 
-    {
-        queueLength = iQueueLength;
-        messages = new ArrayList<>(iQueueLength);
-        listeners = new ArrayList<>();
+    public LogWindowSource(int iQueueLength) {
+        this.queueLength = iQueueLength;
+        this.messages = new ConcurrentLinkedQueue<>();
+        this.listeners = new WeakArrayList<>();
     }
 
     /**
-     * Регистрация слушателя для уведомлений
-     * @param listener
+     * Регистрация слушателя
      */
-    public void registerListener(LogChangeListener listener)
-    {
-        synchronized(listeners)
-        {
+    public void registerListener(LogChangeListener listener) {
+        synchronized (listeners) {
             listeners.add(listener);
-            activeListeners = null;
+            activeListeners = null;  // сбросить кэш
         }
     }
 
     /**
      * Удаление слушателя
-     * @param listener
      */
-    public void unregisterListener(LogChangeListener listener)
-    {
-        synchronized(listeners)
-        {
+    public void unregisterListener(LogChangeListener listener) {
+        synchronized (listeners) {
             listeners.remove(listener);
-            activeListeners = null;
+            activeListeners = null;  // сбросить кэш
         }
     }
 
     /**
-     * Добавление сообщение в лог и уведомление
-     * @param logLevel
-     * @param strMessage
+     * Добавление сообщения в лог и уведомление
      */
-    public void append(LogLevel logLevel, String strMessage)
-    {
+    public void append(LogLevel logLevel, String strMessage) {
         LogEntry entry = new LogEntry(logLevel, strMessage);
         messages.add(entry);
+
+        while (messages.size() > queueLength) {
+            // -начало
+            messages.poll();
+        }
+
+        // Уведомление
         LogChangeListener [] activeListeners = this.activeListeners;
-        if (activeListeners == null)
-        {
-            synchronized (listeners)
-            {
-                if (this.activeListeners == null)
-                {
-                    activeListeners = listeners.toArray(new LogChangeListener [0]);
+        if (activeListeners == null) {
+            synchronized (listeners) {
+                if (this.activeListeners == null) {
+                    activeListeners = listeners.toLiveArray(new LogChangeListener [0]);
                     this.activeListeners = activeListeners;
                 }
             }
         }
-        for (LogChangeListener listener : activeListeners)
-        {
-            listener.onLogChanged();
+        for (LogChangeListener listener : activeListeners) {
+            if (listener != null) {
+                listener.onLogChanged();
+            }
         }
     }
 
     /**
-     * Кол-во сообщений в логе
-     * @return
+     * Все записи
      */
-    public int size()
-    {
+    public List<LogEntry> all() {
+        return new ArrayList<>(messages);
+    }
+
+    /**
+     * Итератор не ломается если добавлять в процессе
+     */
+    public Iterable<LogEntry> safeIterable() {
+        return () -> all().iterator();
+    }
+
+    /**
+     * Возвращает количество записей в логе
+     */
+    public int size() {
         return messages.size();
     }
 
     /**
-     * Итератор по диапазону
-     * @param startFrom
-     * @param count
-     * @return
+     * Доступ по индексам
      */
-    public Iterable<LogEntry> range(int startFrom, int count)
-    {
-        if (startFrom < 0 || startFrom >= messages.size())
-        {
+    public List<LogEntry> range(int startFrom, int count) {
+        if (startFrom < 0 || startFrom >= messages.size()) {
             return Collections.emptyList();
         }
-        int indexTo = Math.min(startFrom + count, messages.size());
-        return messages.subList(startFrom, indexTo);
-    }
+        int realCount = Math.min(count, messages.size() - startFrom);
+        List<LogEntry> result = new ArrayList<>(realCount);
 
-    /**
-     * Итератор по всему
-     * @return
-     */
-    public Iterable<LogEntry> all()
-    {
-        return messages;
+        int index = 0;
+        for (LogEntry entry : messages) {
+            if (index >= startFrom && index < startFrom + realCount) {
+                result.add(entry);
+            }
+            index++;
+            if (index >= startFrom + realCount) {
+                break;
+            }
+        }
+        return result;
     }
 }

@@ -6,27 +6,27 @@ import log.LogWindowSource;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 import java.util.Map;
 
 /**
- * Окно для отображения лога - протокола работы
- * автоматическое обновление отображения
+ * Окно для отображения лога
+ * автоматическое обновление
  */
 public class LogWindow extends JInternalFrame implements LogChangeListener, Save
 {
     private final WindowState windowState = new WindowState();
     private LogWindowSource logSource;
     private TextArea logContent;
+    private final int maxVisible = 5;
 
     /**
      * Новое окно протокола
-     * @param logSource
      */
     public LogWindow(LogWindowSource logSource)
     {
         super("Протокол работы", true, true, true, true);
         this.logSource = logSource;
-        this.logSource.registerListener(this);
         this.logContent = new TextArea("");
         this.logContent.setSize(200, 500);
 
@@ -34,17 +34,27 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Save
         panel.add(logContent, BorderLayout.CENTER);
         getContentPane().add(panel);
         pack();
+
+        this.logSource.registerListener(this);
         updateLogContent();
     }
 
     /**
      * Обновление текста лога
      */
-    private void updateLogContent()
-    {
+    private void updateLogContent() {
+        if (logSource == null) {
+            return;
+        }
+
+        int totalSize = logSource.size();
+        int startFrom = Math.max(0, totalSize - maxVisible);
+        int count = totalSize - startFrom;
+
+        List<LogEntry> entries = logSource.range(startFrom, count);
         StringBuilder content = new StringBuilder();
-        for (LogEntry entry : logSource.all())
-        {
+
+        for (LogEntry entry : entries) {
             content.append(entry.getMessage()).append("\n");
         }
         logContent.setText(content.toString());
@@ -70,5 +80,13 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Save
     @Override
     public String getPrefix() {
         return "log";
+    }
+
+    @Override
+    public void dispose() {
+        if (logSource != null) {
+            logSource.unregisterListener(this);
+        }
+        super.dispose();
     }
 }

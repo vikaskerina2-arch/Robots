@@ -1,4 +1,6 @@
 package gui;
+import log.Logger;
+
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Timer;
@@ -39,6 +41,7 @@ public class Controller implements MouseListener {
     @Override
     public void mouseClicked(MouseEvent e) {
         model.setTarget(e.getX(), e.getY());
+        Logger.debug("Новая цель: (" + e.getX() + ", " + e.getY() + ")");
     }
 
     @Override
