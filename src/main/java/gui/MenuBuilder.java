@@ -77,6 +77,7 @@ public class MenuBuilder {
                 "Тестовые команды");
 
         testMenu.add(createAddLogMessageItem());
+        testMenu.add(createAnotherLogMessageItem());
 
         return testMenu;
     }
@@ -115,5 +116,16 @@ public class MenuBuilder {
                     new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
         });
         return exitItem;
+    }
+
+    /**
+     * Создание кнопки
+     */
+    private JMenuItem createAnotherLogMessageItem() {
+        JMenuItem item = new JMenuItem("Сообщение в лог", KeyEvent.VK_M);
+        item.addActionListener((event) -> {
+            Logger.debug("Новое сообщение из меню");
+        });
+        return item;
     }
 }

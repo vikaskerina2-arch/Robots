@@ -9,7 +9,7 @@ public final class Logger
      * 1 экземпляр лога для всех приложений
      */
     private static final LogWindowSource DEFAULT_LOG_SOURCE =
-            new LogWindowSource(100);
+            new LogWindowSource(5);
 
     /**
      * Конструктор для обхода создания экземпляров
