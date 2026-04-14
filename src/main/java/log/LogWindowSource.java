@@ -62,11 +62,11 @@ public class LogWindowSource {
         }
 
         // Уведомление
-        LogChangeListener [] activeListeners = this.activeListeners;
+        LogChangeListener[] activeListeners = this.activeListeners;
         if (activeListeners == null) {
             synchronized (listeners) {
                 if (this.activeListeners == null) {
-                    activeListeners = listeners.toLiveArray(new LogChangeListener [0]);
+                    activeListeners = listeners.toLiveArray(new LogChangeListener[0]);
                     this.activeListeners = activeListeners;
                 }
             }
@@ -103,21 +103,21 @@ public class LogWindowSource {
      * Доступ по индексам
      */
     public List<LogEntry> range(int startFrom, int count) {
-        if (startFrom < 0 || startFrom >= messages.size()) {
+        Iterator<LogEntry> iterator = safeIterable().iterator();
+        int skipped = 0;
+        while (skipped < startFrom && iterator.hasNext()) {
+            iterator.next();
+            skipped++;
+        }
+
+        if (skipped < startFrom) {
             return Collections.emptyList();
         }
-        int realCount = Math.min(count, messages.size() - startFrom);
-        List<LogEntry> result = new ArrayList<>(realCount);
-
-        int index = 0;
-        for (LogEntry entry : messages) {
-            if (index >= startFrom && index < startFrom + realCount) {
-                result.add(entry);
-            }
-            index++;
-            if (index >= startFrom + realCount) {
-                break;
-            }
+        List<LogEntry> result = new ArrayList<>();
+        int collected = 0;
+        while (collected < count && iterator.hasNext()) {
+            result.add(iterator.next());
+            collected++;
         }
         return result;
     }
