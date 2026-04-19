@@ -1,13 +1,12 @@
 package log;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Источник сообщений лога, хранение записей
  */
 public class LogWindowSource {
-    private int queueLength;
+    private int maxSize;
 
     // Слушатели
     private final WeakArrayList<LogChangeListener> listeners;
@@ -18,14 +17,14 @@ public class LogWindowSource {
     private volatile LogChangeListener[] activeListeners;
 
     // Для записей
-    private final Queue<LogEntry> messages;
+    private final Deque<LogEntry> messages;
 
     /**
      * Новый источник лога
      */
-    public LogWindowSource(int iQueueLength) {
-        this.queueLength = iQueueLength;
-        this.messages = new ConcurrentLinkedQueue<>();
+    public LogWindowSource(int maxSize) {
+        this.maxSize = maxSize;
+        this.messages = new ArrayDeque<>(maxSize + 1);
         this.listeners = new WeakArrayList<>();
     }
 
@@ -33,9 +32,13 @@ public class LogWindowSource {
      * Регистрация слушателя
      */
     public void registerListener(LogChangeListener listener) {
+        if (listener == null) return;
         synchronized (listeners) {
+            for (LogChangeListener existing : getLiveListeners()) {
+                if (existing == listener) return;
+            }
             listeners.add(listener);
-            activeListeners = null;  // сбросить кэш
+            activeListeners = null;
         }
     }
 
@@ -43,38 +46,57 @@ public class LogWindowSource {
      * Удаление слушателя
      */
     public void unregisterListener(LogChangeListener listener) {
+        if (listener == null) return;
         synchronized (listeners) {
             listeners.remove(listener);
-            activeListeners = null;  // сбросить кэш
+            activeListeners = null;
         }
     }
 
     /**
-     * Добавление сообщения в лог и уведомление
+     * Добавление сообщения в лог
      */
     public void append(LogLevel logLevel, String strMessage) {
         LogEntry entry = new LogEntry(logLevel, strMessage);
-        messages.add(entry);
-
-        while (messages.size() > queueLength) {
-            // -начало
-            messages.poll();
+        synchronized (this) {
+            if (messages.size() >= maxSize) {
+                messages.pollFirst();
+            }
+            messages.offerLast(entry);
         }
+        notifyListeners();
+    }
 
-        // Уведомление
-        LogChangeListener[] activeListeners = this.activeListeners;
-        if (activeListeners == null) {
+
+    // Уведомление
+    private void notifyListeners() {
+        LogChangeListener[] active = activeListeners;
+        if (active == null) {
             synchronized (listeners) {
-                if (this.activeListeners == null) {
-                    activeListeners = listeners.toLiveArray(new LogChangeListener[0]);
-                    this.activeListeners = activeListeners;
+                if (activeListeners == null) {
+                    List<LogChangeListener> live = getLiveListeners();
+                    activeListeners = live.toArray(new LogChangeListener[0]);
+                    active = activeListeners;
                 }
             }
         }
-        for (LogChangeListener listener : activeListeners) {
+        for (LogChangeListener listener : active) {
             if (listener != null) {
-                listener.onLogChanged();
+                try {
+                    listener.onLogChanged();
+                } catch (Exception e) {
+                    System.err.println(e.getMessage());
+                }
             }
+        }
+    }
+
+    /**
+     * Список живых слушателей
+     */
+    private List<LogChangeListener> getLiveListeners() {
+        synchronized (listeners) {
+            return listeners.getLiveElements();
         }
     }
 
@@ -82,43 +104,40 @@ public class LogWindowSource {
      * Все записи
      */
     public List<LogEntry> all() {
-        return new ArrayList<>(messages);
+        synchronized (this) {
+            return new ArrayList<>(messages);
+        }
     }
 
     /**
      * Итератор не ломается если добавлять в процессе
      */
-    public Iterable<LogEntry> safeIterable() {
+    public Iterable<LogEntry> safeIterable () {
         return () -> all().iterator();
     }
 
     /**
      * Возвращает количество записей в логе
      */
-    public int size() {
-        return messages.size();
+    public int size () {
+        synchronized (this) {
+            return messages.size();
+        }
     }
 
     /**
      * Доступ по индексам
      */
-    public List<LogEntry> range(int startFrom, int count) {
-        Iterator<LogEntry> iterator = safeIterable().iterator();
-        int skipped = 0;
-        while (skipped < startFrom && iterator.hasNext()) {
-            iterator.next();
-            skipped++;
+    public List<LogEntry> range ( int startFrom, int count){
+        List<LogEntry> snapshot = new ArrayList<>();
+        for (LogEntry entry : safeIterable()) {
+            snapshot.add(entry);
         }
 
-        if (skipped < startFrom) {
+        if (startFrom < 0 || startFrom >= snapshot.size()) {
             return Collections.emptyList();
         }
-        List<LogEntry> result = new ArrayList<>();
-        int collected = 0;
-        while (collected < count && iterator.hasNext()) {
-            result.add(iterator.next());
-            collected++;
-        }
-        return result;
+        int resultCount = Math.min(count, snapshot.size() - startFrom);
+        return new ArrayList<>(snapshot.subList(startFrom, startFrom + resultCount));
     }
 }
