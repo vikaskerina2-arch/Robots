@@ -59,16 +59,17 @@ public class WeakArrayList<T> extends AbstractList<T> {
         items.removeIf(ref -> ref.get() == null);
     }
 
-     //Возвращает список живых слушателей
-     public List<T> getLiveElements() {
-         cleanDeadReferences();
-         List<T> liveItems = new ArrayList<>();
-         for (WeakReference<T> ref : items) {
-             T item = ref.get();
-             if (item != null) {
-                 liveItems.add(item);
-             }
-         }
-         return liveItems;
-     }
+     //Возвращает массив живых слушателей
+    @SuppressWarnings("unchecked")
+    public T[] toLiveArray(T[] array) {
+        cleanDeadReferences();
+        List<T> liveItems = new ArrayList<>();
+        for (WeakReference<T> ref : items) {
+            T item = ref.get();
+            if (item != null) {
+                liveItems.add(item);
+            }
+        }
+        return liveItems.toArray(array);
+    }
 }
