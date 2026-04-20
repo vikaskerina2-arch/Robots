@@ -41,7 +41,7 @@ public class Controller implements MouseListener {
     @Override
     public void mouseClicked(MouseEvent e) {
         model.setTarget(e.getX(), e.getY());
-        Logger.debug("Новая цель: (" + e.getX() + ", " + e.getY() + ")");
+        Logger.debug(Localization.getInstance().get("robot.click", e.getX(), e.getY()));
     }
 
     @Override

@@ -32,6 +32,7 @@ public class MainApplicationFrame extends JFrame implements Save
      * Размеры, окна лога и игры, меню
      */
     public MainApplicationFrame() {
+        loadLanguageState();
         //Отступы
         int inset = 50;
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -74,6 +75,66 @@ public class MainApplicationFrame extends JFrame implements Save
                 exitApplication();
             }
         });
+        applyLanguageToAll();
+    }
+
+    /**
+     * Загружаем язык из файла
+     */
+    private void loadLanguageState() {
+        Map<String, String> all = storage.load();
+        String localCode = all.get("language");
+        if (localCode != null) {
+            Localization.getInstance().setLocale(localCode);
+        }
+    }
+
+    /**
+     * Сохраняем язык в файл
+     */
+    private void saveLanguageState() {
+        Map<String, String> all = storage.load();
+        all.put("language", Localization.getInstance().getLanguage().getCode());
+        storage.save(all);
+    }
+
+    /**
+     * Применение языка
+     */
+    private void applyLanguageToAll() {
+        setTitle(Localization.getInstance().get("game.window"));
+        if (logWindow != null) {
+            logWindow.setTitle(Localization.getInstance().get("log.window"));
+            logWindow.updateContent();
+        }
+        if (gameWindow != null) {
+            gameWindow.setTitle(Localization.getInstance().get("game.window"));
+        }
+        if (infoWindow != null) {
+            infoWindow.setTitle(Localization.getInstance().get("robot.info"));
+            infoWindow.updateTexts();
+        }
+
+    }
+
+    /**
+     * Переключение языка
+     */
+    public void switchLanguage(Localization.Language newLanguage) {
+        Localization.getInstance().setLanguage(newLanguage);
+        saveLanguageState();
+        applyLanguageToAll();
+
+        // Обновляем меню
+        MenuBuilder menuBuilder = new MenuBuilder(this);
+        setJMenuBar(menuBuilder.buildMenuBar());
+
+        // Перерисовываем
+        SwingUtilities.updateComponentTreeUI(this);
+    }
+
+    public Localization.Language getCurrentLanguage() {
+        return Localization.getInstance().getLanguage();
     }
 
     /**
@@ -114,7 +175,7 @@ public class MainApplicationFrame extends JFrame implements Save
         logWindow.setLocation(10,10);
         logWindow.setSize(300, 800);
         logWindow.pack();
-        Logger.debug("Протокол работает");
+        Logger.debug(Localization.getInstance().get("log.window.started"));
         return logWindow;
     }
 
@@ -132,12 +193,13 @@ public class MainApplicationFrame extends JFrame implements Save
      * Выход с подтверждением
      */
     public void exitApplication(){
-        //русский
-        String[] options = {"Да", "Нет"};
+        String[] options = {Localization.getInstance().get("confirm.exit.yes"),
+                Localization.getInstance().get("confirm.exit.no")
+        };
         int result = JOptionPane.showOptionDialog(
                 this,
-                "Вы хотите выйти?",
-                "Подтверждение выхода",
+                Localization.getInstance().get("confirm.exit.message"),
+                Localization.getInstance().get("confirm.exit.title"),
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE,
                 null,

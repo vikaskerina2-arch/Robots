@@ -25,16 +25,36 @@ public class MenuBuilder {
     public JMenuBar buildMenuBar(){
         JMenuBar menuBar = new JMenuBar();
         menuBar.add(createLookAndFeelMenu());
+        menuBar.add(createLanguageMenu());
         menuBar.add(createTestMenu());
         menuBar.add(createExitMenu());
         return menuBar;
     }
 
     /**
+     * Язык
+     */
+    private JMenu createLanguageMenu() {
+        JMenu languageMenu = new JMenu(Localization.getInstance().get("menu.language"));
+        languageMenu.setMnemonic(KeyEvent.VK_L);
+
+        JMenuItem russianItem = new JMenuItem(Localization.getInstance().get("menu.language.russian"));
+        russianItem.addActionListener(e -> frame.switchLanguage(Localization.Language.RUSSIAN));
+
+        JMenuItem englishItem = new JMenuItem(Localization.getInstance().get("menu.language.english"));
+        englishItem.addActionListener(e -> frame.switchLanguage(Localization.Language.ENGLISH));
+
+        languageMenu.add(russianItem);
+        languageMenu.add(englishItem);
+
+        return languageMenu;
+    }
+
+    /**
      * Создание меню режима отображения
      */
     private JMenu createLookAndFeelMenu(){
-        JMenu lookAndFeelMenu = new JMenu("Режим отображения");
+        JMenu lookAndFeelMenu = new JMenu(Localization.getInstance().get("menu.view"));
         lookAndFeelMenu.setMnemonic(KeyEvent.VK_V);
         lookAndFeelMenu.getAccessibleContext().setAccessibleDescription(
                 "Управление режимом отображения приложения");
@@ -47,7 +67,7 @@ public class MenuBuilder {
      * Создание меню для схемы системы
      */
     private JMenuItem createSystemLookAndFeelItem() {
-        JMenuItem systemLookAndFeel = new JMenuItem("Системная схема", KeyEvent.VK_S);
+        JMenuItem systemLookAndFeel = new JMenuItem(Localization.getInstance().get("menu.view.system"), KeyEvent.VK_S);
         systemLookAndFeel.addActionListener((event) -> {
             frame.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             frame.invalidate();
@@ -59,7 +79,7 @@ public class MenuBuilder {
      * Создание меню универсальной схемы
      */
     private JMenuItem createCrossPlatformLookAndFeelItem() {
-        JMenuItem crossplatformLookAndFeel = new JMenuItem("Универсальная схема", KeyEvent.VK_S);
+        JMenuItem crossplatformLookAndFeel = new JMenuItem(Localization.getInstance().get("menu.view.universal"), KeyEvent.VK_S);
         crossplatformLookAndFeel.addActionListener((event) -> {
             frame.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
             frame.invalidate();
@@ -71,7 +91,7 @@ public class MenuBuilder {
      * Создание меню с текстовыми командами
      */
     private JMenu createTestMenu() {
-        JMenu testMenu = new JMenu("Тесты");
+        JMenu testMenu = new JMenu(Localization.getInstance().get("menu.tests"));
         testMenu.setMnemonic(KeyEvent.VK_T);
         testMenu.getAccessibleContext().setAccessibleDescription(
                 "Тестовые команды");
@@ -86,9 +106,9 @@ public class MenuBuilder {
      * Создание пункта для добавления сообщений в лог
      */
     private JMenuItem createAddLogMessageItem() {
-        JMenuItem addLogMessageItem = new JMenuItem("Сообщение в лог", KeyEvent.VK_S);
+        JMenuItem addLogMessageItem = new JMenuItem(Localization.getInstance().get("menu.tests.log"), KeyEvent.VK_S);
         addLogMessageItem.addActionListener((event) -> {
-            Logger.debug("Новая строка");
+            Logger.debug(Localization.getInstance().get("log.message"));
         });
         return addLogMessageItem;
     }
@@ -97,7 +117,7 @@ public class MenuBuilder {
      * Создание меню выхода
      */
     private JMenu createExitMenu(){
-        JMenu exitMenu = new JMenu("Выход");
+        JMenu exitMenu = new JMenu(Localization.getInstance().get("menu.exit"));
         exitMenu.setMnemonic(KeyEvent.VK_X);
         exitMenu.getAccessibleContext().setAccessibleDescription(
                 "Завершение работы приложения");
@@ -106,10 +126,10 @@ public class MenuBuilder {
     }
 
     /**
-     * Создание пункта меню вызода
+     * Создание пункта меню выхода
      */
     private JMenuItem createExitMenuItem(){
-        JMenuItem exitItem = new JMenuItem("Завершить работу", KeyEvent.VK_X);
+        JMenuItem exitItem = new JMenuItem(Localization.getInstance().get("menu.exit.confirm"), KeyEvent.VK_X);
         exitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.ALT_DOWN_MASK));
         exitItem.addActionListener((event)->{
             Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(
@@ -122,9 +142,9 @@ public class MenuBuilder {
      * Создание кнопки
      */
     private JMenuItem createAnotherLogMessageItem() {
-        JMenuItem item = new JMenuItem("Сообщение в лог", KeyEvent.VK_M);
+        JMenuItem item = new JMenuItem(Localization.getInstance().get("menu.tests.log2"), KeyEvent.VK_M);
         item.addActionListener((event) -> {
-            Logger.debug("Новое сообщение из меню");
+            Logger.debug(Localization.getInstance().get("log.message2"));
         });
         return item;
     }

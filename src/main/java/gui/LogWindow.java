@@ -25,10 +25,11 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Save
      */
     public LogWindow(LogWindowSource logSource)
     {
-        super("Протокол работы", true, true, true, true);
+        super(Localization.getInstance().get("log.window"), true, true, true, true);
         this.logSource = logSource;
         this.logContent = new TextArea("");
         this.logContent.setSize(200, 500);
+        this.logContent.setEditable(false);
 
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(logContent, BorderLayout.CENTER);
@@ -36,6 +37,11 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Save
         pack();
 
         this.logSource.registerListener(this);
+        updateLogContent();
+    }
+
+    public void updateContent() {
+        setTitle(Localization.getInstance().get("log.window"));
         updateLogContent();
     }
 
@@ -48,6 +54,10 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Save
         }
 
         int totalSize = logSource.size();
+        if (totalSize == 0) {
+            logContent.setText(Localization.getInstance().get("log.empty"));
+            return;
+        }
         int startFrom = Math.max(0, totalSize - maxVisible);
         int count = totalSize - startFrom;
 
