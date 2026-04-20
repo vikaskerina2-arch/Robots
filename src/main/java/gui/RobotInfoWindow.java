@@ -19,11 +19,17 @@ public class RobotInfoWindow extends JInternalFrame implements Save, PropertyCha
     private final JLabel targetAngleLabel;
     private final JLabel angleDiffLabel;
 
+    private JLabel xTitleLabel;
+    private JLabel yTitleLabel;
+    private JLabel dirTitleLabel;
+    private JLabel angleTitleLabel;
+    private JLabel diffTitleLabel;
+
     /**
      * Создание окна
      */
     public RobotInfoWindow(RobotModel model) {
-        super("Информация о роботе", true, true, true, true);
+        super(Localization.getInstance().get("robot.info"), true, true, true, true);
         this.model = model;
         this.model.addPropertyChangeListener(this); // подписываемся на модель
 
@@ -33,41 +39,67 @@ public class RobotInfoWindow extends JInternalFrame implements Save, PropertyCha
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         //Робот
-        panel.add(new JLabel("Позиция X:"));
-        xLabel = new JLabel(String.format("%.1f", model.getX()));
+        xTitleLabel = new JLabel(Localization.getInstance().get("robot.position.x"));
+        panel.add(xTitleLabel);
+        xLabel = new JLabel(formatValue(model.getX()));
         panel.add(xLabel);
 
-        panel.add(new JLabel("Позиция Y:"));
-        yLabel = new JLabel(String.format("%.1f", model.getY()));
+        yTitleLabel = new JLabel(Localization.getInstance().get("robot.position.y"));
+        panel.add(yTitleLabel);
+        yLabel = new JLabel(formatValue(model.getY()));
         panel.add(yLabel);
 
-        panel.add(new JLabel("Направление:"));
-        directionLabel = new JLabel(String.format("%.1f°", Math.toDegrees(model.getDirection())));
+        dirTitleLabel = new JLabel(Localization.getInstance().get("robot.direction"));
+        panel.add(dirTitleLabel);
+        directionLabel = new JLabel(formatAngle(model.getDirection()));
         panel.add(directionLabel);
 
         //Угол поворота
-        panel.add(new JLabel("Угол поворота(радианы):"));
-        targetAngleLabel = new JLabel(String.format("%.3f", model.getAngleToTarget()));
+        angleTitleLabel = new JLabel(Localization.getInstance().get("robot.angle.to.target"));
+        panel.add(angleTitleLabel);
+        targetAngleLabel = new JLabel(formatRadians(model.getAngleToTarget()));
         panel.add(targetAngleLabel);
 
         //Угол до цели
-        panel.add(new JLabel("Угол до цели(радианы):"));
-        angleDiffLabel = new JLabel(String.format("%.3f", model.getAngleDiff()));
+        diffTitleLabel = new JLabel(Localization.getInstance().get("robot.angle.diff"));
+        panel.add(diffTitleLabel);
+        angleDiffLabel = new JLabel(formatRadians(model.getAngleDiff()));
         panel.add(angleDiffLabel);
 
         getContentPane().add(panel);
         pack();
     }
 
+    public void updateTexts() {
+        setTitle(Localization.getInstance().get("robot.info"));
+        xTitleLabel.setText(Localization.getInstance().get("robot.position.x"));
+        yTitleLabel.setText(Localization.getInstance().get("robot.position.y"));
+        dirTitleLabel.setText(Localization.getInstance().get("robot.direction"));
+        angleTitleLabel.setText(Localization.getInstance().get("robot.angle.to.target"));
+        diffTitleLabel.setText(Localization.getInstance().get("robot.angle.diff"));
+    }
+
+    private String formatValue(double value) {
+        return String.format("%.1f", value);
+    }
+
+    private String formatAngle(double angle) {
+        return String.format("%.3f", angle);
+    }
+
+    private String formatRadians(double rad) {
+        return String.format("%.3f", rad);
+    }
+
     //Обновляет отображение при изменении модели
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         SwingUtilities.invokeLater(() -> {
-            xLabel.setText(String.format("%.1f", model.getX()));
-            yLabel.setText(String.format("%.1f", model.getY()));
-            directionLabel.setText(String.format("%.3f", model.getDirection()));
-            targetAngleLabel.setText(String.format("%.3f", model.getAngleToTarget()));
-            angleDiffLabel.setText(String.format("%.3f", model.getAngleDiff()));
+            xLabel.setText(formatValue(model.getX()));
+            yLabel.setText(formatValue(model.getY()));
+            directionLabel.setText(formatAngle(model.getDirection()));
+            targetAngleLabel.setText(formatRadians(model.getAngleToTarget()));
+            angleDiffLabel.setText(formatRadians(model.getAngleDiff()));
         });
     }
 

@@ -19,17 +19,20 @@ public class GameWindow extends JInternalFrame implements Save {
      * Создаем окно, модель и таймер
      */
     public GameWindow() {
-        super("Игровое поле", true, true, true, true);
+        super(Localization.getInstance().get("game.window"), true, true, true, true);
 
         model = new RobotModel();
         visualizer = new GameVisualizer(model);
-
         controller = new Controller(model, visualizer);
 
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(visualizer, BorderLayout.CENTER);
         getContentPane().add(panel);
         pack();
+    }
+
+    public void updateTitle() {
+        setTitle(Localization.getInstance().get("game.window"));
     }
 
     /**
