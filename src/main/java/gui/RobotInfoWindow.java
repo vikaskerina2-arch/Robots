@@ -12,6 +12,7 @@ import java.util.Map;
 public class RobotInfoWindow extends JInternalFrame implements Save, PropertyChangeListener {
 
     private final WindowState windowState = new WindowState();
+    private final Localization localization = Localization.getInstance();
     private final RobotModel model;
     private final JLabel xLabel;
     private final JLabel yLabel;
@@ -29,7 +30,7 @@ public class RobotInfoWindow extends JInternalFrame implements Save, PropertyCha
      * Создание окна
      */
     public RobotInfoWindow(RobotModel model) {
-        super(Localization.getInstance().get("robot.info"), true, true, true, true);
+        super(Localization.getInstance().getString("robot.info"), true, true, true, true);
         this.model = model;
         this.model.addPropertyChangeListener(this); // подписываемся на модель
 
@@ -39,44 +40,41 @@ public class RobotInfoWindow extends JInternalFrame implements Save, PropertyCha
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         //Робот
-        xTitleLabel = new JLabel(Localization.getInstance().get("robot.position.x"));
+        xTitleLabel = new JLabel();
         panel.add(xTitleLabel);
         xLabel = new JLabel(formatValue(model.getX()));
         panel.add(xLabel);
 
-        yTitleLabel = new JLabel(Localization.getInstance().get("robot.position.y"));
+        yTitleLabel = new JLabel();
         panel.add(yTitleLabel);
         yLabel = new JLabel(formatValue(model.getY()));
         panel.add(yLabel);
 
-        dirTitleLabel = new JLabel(Localization.getInstance().get("robot.direction"));
+        dirTitleLabel = new JLabel();
         panel.add(dirTitleLabel);
         directionLabel = new JLabel(formatAngle(model.getDirection()));
         panel.add(directionLabel);
 
         //Угол поворота
-        angleTitleLabel = new JLabel(Localization.getInstance().get("robot.angle.to.target"));
+        angleTitleLabel = new JLabel();
         panel.add(angleTitleLabel);
         targetAngleLabel = new JLabel(formatRadians(model.getAngleToTarget()));
         panel.add(targetAngleLabel);
 
         //Угол до цели
-        diffTitleLabel = new JLabel(Localization.getInstance().get("robot.angle.diff"));
+        diffTitleLabel = new JLabel();
         panel.add(diffTitleLabel);
         angleDiffLabel = new JLabel(formatRadians(model.getAngleDiff()));
         panel.add(angleDiffLabel);
 
         getContentPane().add(panel);
         pack();
+
+        updateTextsLang();
     }
 
     public void updateTexts() {
-        setTitle(Localization.getInstance().get("robot.info"));
-        xTitleLabel.setText(Localization.getInstance().get("robot.position.x"));
-        yTitleLabel.setText(Localization.getInstance().get("robot.position.y"));
-        dirTitleLabel.setText(Localization.getInstance().get("robot.direction"));
-        angleTitleLabel.setText(Localization.getInstance().get("robot.angle.to.target"));
-        diffTitleLabel.setText(Localization.getInstance().get("robot.angle.diff"));
+        updateTextsLang();
     }
 
     private String formatValue(double value) {
@@ -117,5 +115,15 @@ public class RobotInfoWindow extends JInternalFrame implements Save, PropertyCha
     @Override
     public String getPrefix() {
         return "info";
+    }
+
+    @Override
+    public void updateTextsLang() {
+        setTitle(localization.getString("robot.info"));
+        xTitleLabel.setText(localization.getString("robot.position.x"));
+        yTitleLabel.setText(localization.getString("robot.position.y"));
+        dirTitleLabel.setText(localization.getString("robot.direction"));
+        angleTitleLabel.setText(localization.getString("robot.angle.to.target"));
+        diffTitleLabel.setText(localization.getString("robot.angle.diff"));
     }
 }

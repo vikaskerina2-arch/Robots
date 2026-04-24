@@ -16,6 +16,8 @@ import java.util.Map;
 public class LogWindow extends JInternalFrame implements LogChangeListener, Save
 {
     private final WindowState windowState = new WindowState();
+    private final Localization localization = Localization.getInstance();
+
     private LogWindowSource logSource;
     private TextArea logContent;
     private final int maxVisible = 5;
@@ -25,7 +27,7 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Save
      */
     public LogWindow(LogWindowSource logSource)
     {
-        super(Localization.getInstance().get("log.window"), true, true, true, true);
+        super(Localization.getInstance().getString("log.window"), true, true, true, true);
         this.logSource = logSource;
         this.logContent = new TextArea("");
         this.logContent.setSize(200, 500);
@@ -40,11 +42,6 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Save
         updateLogContent();
     }
 
-    public void updateContent() {
-        setTitle(Localization.getInstance().get("log.window"));
-        updateLogContent();
-    }
-
     /**
      * Обновление текста лога
      */
@@ -55,7 +52,7 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Save
 
         int totalSize = logSource.size();
         if (totalSize == 0) {
-            logContent.setText(Localization.getInstance().get("log.empty"));
+            logContent.setText(localization.getString("log.empty"));
             return;
         }
         int startFrom = Math.max(0, totalSize - maxVisible);
@@ -90,6 +87,12 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Save
     @Override
     public String getPrefix() {
         return "log";
+    }
+
+    @Override
+    public void updateTextsLang() {
+        setTitle(localization.getString("log.window"));
+        updateLogContent();
     }
 
     @Override

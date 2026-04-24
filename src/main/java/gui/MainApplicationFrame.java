@@ -16,6 +16,7 @@ import java.util.Map;
 public class MainApplicationFrame extends JFrame implements Save
 {
     private final WindowState windowState = new WindowState();
+    private final Localization localization = Localization.getInstance();
     /**
      * Панель для внутренних окон
      */
@@ -75,7 +76,7 @@ public class MainApplicationFrame extends JFrame implements Save
                 exitApplication();
             }
         });
-        applyLanguageToAll();
+        updateTextsLang();
     }
 
     /**
@@ -83,9 +84,9 @@ public class MainApplicationFrame extends JFrame implements Save
      */
     private void loadLanguageState() {
         Map<String, String> all = storage.load();
-        String localCode = all.get("language");
-        if (localCode != null) {
-            Localization.getInstance().setLocale(localCode);
+        String saveCode = all.get("language");
+        if (saveCode != null) {
+            localization.setLocaleFromString(saveCode);
         }
     }
 
@@ -94,47 +95,19 @@ public class MainApplicationFrame extends JFrame implements Save
      */
     private void saveLanguageState() {
         Map<String, String> all = storage.load();
-        all.put("language", Localization.getInstance().getLanguage().getCode());
+        all.put("language", localization.getLocaleString());
         storage.save(all);
     }
 
-    /**
-     * Применение языка
-     */
-    private void applyLanguageToAll() {
-        setTitle(Localization.getInstance().get("game.window"));
-        if (logWindow != null) {
-            logWindow.setTitle(Localization.getInstance().get("log.window"));
-            logWindow.updateContent();
-        }
-        if (gameWindow != null) {
-            gameWindow.setTitle(Localization.getInstance().get("game.window"));
-        }
-        if (infoWindow != null) {
-            infoWindow.setTitle(Localization.getInstance().get("robot.info"));
-            infoWindow.updateTexts();
-        }
-
-    }
-
-    /**
-     * Переключение языка
-     */
-    public void switchLanguage(Localization.Language newLanguage) {
-        Localization.getInstance().setLanguage(newLanguage);
+    public void switchLanguage(String langCode) {
+        localization.setLocaleFromString(langCode);
         saveLanguageState();
-        applyLanguageToAll();
+        updateTextsLang();
 
         // Обновляем меню
         MenuBuilder menuBuilder = new MenuBuilder(this);
         setJMenuBar(menuBuilder.buildMenuBar());
-
-        // Перерисовываем
         SwingUtilities.updateComponentTreeUI(this);
-    }
-
-    public Localization.Language getCurrentLanguage() {
-        return Localization.getInstance().getLanguage();
     }
 
     /**
@@ -175,7 +148,7 @@ public class MainApplicationFrame extends JFrame implements Save
         logWindow.setLocation(10,10);
         logWindow.setSize(300, 800);
         logWindow.pack();
-        Logger.debug(Localization.getInstance().get("log.window.started"));
+        Logger.debug(localization.getString("log.window.started"));
         return logWindow;
     }
 
@@ -193,13 +166,13 @@ public class MainApplicationFrame extends JFrame implements Save
      * Выход с подтверждением
      */
     public void exitApplication(){
-        String[] options = {Localization.getInstance().get("confirm.exit.yes"),
-                Localization.getInstance().get("confirm.exit.no")
+        String[] options = {localization.getString("confirm.exit.yes"),
+                localization.getString("confirm.exit.no")
         };
         int result = JOptionPane.showOptionDialog(
                 this,
-                Localization.getInstance().get("confirm.exit.message"),
-                Localization.getInstance().get("confirm.exit.title"),
+                localization.getString("confirm.exit.message"),
+                localization.getString("confirm.exit.title"),
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE,
                 null,
@@ -247,5 +220,13 @@ public class MainApplicationFrame extends JFrame implements Save
     @Override
     public String getPrefix() {
         return "main";
+    }
+
+    @Override
+    public void updateTextsLang() {
+        setTitle(localization.getString("game.window"));
+        if (logWindow != null) logWindow.updateTextsLang();
+        if (gameWindow != null) gameWindow.updateTextsLang();
+        if (infoWindow != null) infoWindow.updateTextsLang();
     }
 }

@@ -11,6 +11,7 @@ import java.util.Map;
 public class GameWindow extends JInternalFrame implements Save {
 
     private final WindowState windowState = new WindowState();
+    private final Localization localization = Localization.getInstance();
     private final RobotModel model;
     private final GameVisualizer visualizer;
     private final Controller controller;
@@ -19,7 +20,7 @@ public class GameWindow extends JInternalFrame implements Save {
      * Создаем окно, модель и таймер
      */
     public GameWindow() {
-        super(Localization.getInstance().get("game.window"), true, true, true, true);
+        super(Localization.getInstance().getString("game.window"), true, true, true, true);
 
         model = new RobotModel();
         visualizer = new GameVisualizer(model);
@@ -29,10 +30,6 @@ public class GameWindow extends JInternalFrame implements Save {
         panel.add(visualizer, BorderLayout.CENTER);
         getContentPane().add(panel);
         pack();
-    }
-
-    public void updateTitle() {
-        setTitle(Localization.getInstance().get("game.window"));
     }
 
     /**
@@ -55,6 +52,11 @@ public class GameWindow extends JInternalFrame implements Save {
     @Override
     public String getPrefix() {
         return "game";
+    }
+
+    @Override
+    public void updateTextsLang() {
+        setTitle(localization.getString("game.window"));
     }
 
 }

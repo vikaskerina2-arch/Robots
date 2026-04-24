@@ -11,6 +11,7 @@ import java.awt.event.WindowEvent;
  */
 public class MenuBuilder {
     private final MainApplicationFrame frame;
+    private final Localization localization = Localization.getInstance();
 
     /**
      * @param frame ссылка на главное окно для вызова методов (setLookAndFeel)
@@ -35,14 +36,14 @@ public class MenuBuilder {
      * Язык
      */
     private JMenu createLanguageMenu() {
-        JMenu languageMenu = new JMenu(Localization.getInstance().get("menu.language"));
+        JMenu languageMenu = new JMenu(localization.getString("menu.language"));
         languageMenu.setMnemonic(KeyEvent.VK_L);
 
-        JMenuItem russianItem = new JMenuItem(Localization.getInstance().get("menu.language.russian"));
-        russianItem.addActionListener(e -> frame.switchLanguage(Localization.Language.RUSSIAN));
+        JMenuItem russianItem = new JMenuItem(localization.getString("menu.language.russian"));
+        russianItem.addActionListener(e -> frame.switchLanguage("ru"));
 
-        JMenuItem englishItem = new JMenuItem(Localization.getInstance().get("menu.language.english"));
-        englishItem.addActionListener(e -> frame.switchLanguage(Localization.Language.ENGLISH));
+        JMenuItem englishItem = new JMenuItem(localization.getString("menu.language.english"));
+        englishItem.addActionListener(e -> frame.switchLanguage("en"));
 
         languageMenu.add(russianItem);
         languageMenu.add(englishItem);
@@ -54,7 +55,7 @@ public class MenuBuilder {
      * Создание меню режима отображения
      */
     private JMenu createLookAndFeelMenu(){
-        JMenu lookAndFeelMenu = new JMenu(Localization.getInstance().get("menu.view"));
+        JMenu lookAndFeelMenu = new JMenu(localization.getString("menu.view"));
         lookAndFeelMenu.setMnemonic(KeyEvent.VK_V);
         lookAndFeelMenu.getAccessibleContext().setAccessibleDescription(
                 "Управление режимом отображения приложения");
@@ -67,7 +68,7 @@ public class MenuBuilder {
      * Создание меню для схемы системы
      */
     private JMenuItem createSystemLookAndFeelItem() {
-        JMenuItem systemLookAndFeel = new JMenuItem(Localization.getInstance().get("menu.view.system"), KeyEvent.VK_S);
+        JMenuItem systemLookAndFeel = new JMenuItem(localization.getString("menu.view.system"), KeyEvent.VK_S);
         systemLookAndFeel.addActionListener((event) -> {
             frame.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             frame.invalidate();
@@ -79,7 +80,7 @@ public class MenuBuilder {
      * Создание меню универсальной схемы
      */
     private JMenuItem createCrossPlatformLookAndFeelItem() {
-        JMenuItem crossplatformLookAndFeel = new JMenuItem(Localization.getInstance().get("menu.view.universal"), KeyEvent.VK_S);
+        JMenuItem crossplatformLookAndFeel = new JMenuItem(localization.getString("menu.view.universal"), KeyEvent.VK_S);
         crossplatformLookAndFeel.addActionListener((event) -> {
             frame.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
             frame.invalidate();
@@ -91,7 +92,7 @@ public class MenuBuilder {
      * Создание меню с текстовыми командами
      */
     private JMenu createTestMenu() {
-        JMenu testMenu = new JMenu(Localization.getInstance().get("menu.tests"));
+        JMenu testMenu = new JMenu(localization.getString("menu.tests"));
         testMenu.setMnemonic(KeyEvent.VK_T);
         testMenu.getAccessibleContext().setAccessibleDescription(
                 "Тестовые команды");
@@ -106,9 +107,9 @@ public class MenuBuilder {
      * Создание пункта для добавления сообщений в лог
      */
     private JMenuItem createAddLogMessageItem() {
-        JMenuItem addLogMessageItem = new JMenuItem(Localization.getInstance().get("menu.tests.log"), KeyEvent.VK_S);
+        JMenuItem addLogMessageItem = new JMenuItem(localization.getString("menu.tests.log"), KeyEvent.VK_S);
         addLogMessageItem.addActionListener((event) -> {
-            Logger.debug(Localization.getInstance().get("log.message"));
+            Logger.debug(Localization.getInstance().getString("log.message"));
         });
         return addLogMessageItem;
     }
@@ -117,7 +118,7 @@ public class MenuBuilder {
      * Создание меню выхода
      */
     private JMenu createExitMenu(){
-        JMenu exitMenu = new JMenu(Localization.getInstance().get("menu.exit"));
+        JMenu exitMenu = new JMenu(localization.getString("menu.exit"));
         exitMenu.setMnemonic(KeyEvent.VK_X);
         exitMenu.getAccessibleContext().setAccessibleDescription(
                 "Завершение работы приложения");
@@ -129,7 +130,7 @@ public class MenuBuilder {
      * Создание пункта меню выхода
      */
     private JMenuItem createExitMenuItem(){
-        JMenuItem exitItem = new JMenuItem(Localization.getInstance().get("menu.exit.confirm"), KeyEvent.VK_X);
+        JMenuItem exitItem = new JMenuItem(localization.getString("menu.exit.confirm"), KeyEvent.VK_X);
         exitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.ALT_DOWN_MASK));
         exitItem.addActionListener((event)->{
             Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(
@@ -142,9 +143,9 @@ public class MenuBuilder {
      * Создание кнопки
      */
     private JMenuItem createAnotherLogMessageItem() {
-        JMenuItem item = new JMenuItem(Localization.getInstance().get("menu.tests.log2"), KeyEvent.VK_M);
+        JMenuItem item = new JMenuItem(localization.getString("menu.tests.log2"), KeyEvent.VK_M);
         item.addActionListener((event) -> {
-            Logger.debug(Localization.getInstance().get("log.message2"));
+            Logger.debug(Localization.getInstance().getString("log.message2"));
         });
         return item;
     }
