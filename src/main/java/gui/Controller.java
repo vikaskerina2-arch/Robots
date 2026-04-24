@@ -15,6 +15,7 @@ public class Controller implements MouseListener {
     private final RobotModel model;
     private final GameVisualizer visualizer;
     private final Timer timer;
+    private final Localization localization = Localization.getInstance();
 
     /**
      * Создаём контроллер для управления роботом
@@ -41,7 +42,7 @@ public class Controller implements MouseListener {
     @Override
     public void mouseClicked(MouseEvent e) {
         model.setTarget(e.getX(), e.getY());
-        Logger.debug(Localization.getInstance().get("robot.click", e.getX(), e.getY()));
+        Logger.debug(localization.getString("robot.click", e.getX(), e.getY()));
     }
 
     @Override

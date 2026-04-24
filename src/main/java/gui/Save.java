@@ -21,4 +21,9 @@ public interface Save {
      * Возвращает префикс для ключей окна
      */
     String getPrefix();
+
+    /**
+     * Обновляет тексты при смене языка
+     */
+    void updateTextsLang();
 }
